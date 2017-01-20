@@ -1,32 +1,22 @@
 package randomforest
 
-import (
-	"log"
-	"testing"
-)
+import "log"
 
-type TestData struct {
-	Data  []float64
-	Label string
-}
+func ExampleNew() {
 
-var data = []TestData{
-	{[]float64{1, 1, 1}, "ben"},
-	{[]float64{2, 2, 2}, "cassie"},
-	{[]float64{3, 3, 3}, "floki"},
-	{[]float64{4, 4, 4}, "luna"},
-}
-
-func TestRandomForest(t *testing.T) {
+	data := [][]float64{
+		{1, 1, 1},
+		{2, 2, 2},
+		{3, 3, 3},
+		{4, 4, 4},
+	}
+	labels := []string{"ben", "cassie", "floki", "luna"}
 
 	rf := New(100)
+	rf.Fit(data, labels)
 
-	datas := [][]float64{}
-	labels := []string{}
-	for _, val := range data {
-		datas = append(datas, val.Data)
-		labels = append(labels, val.Label)
+	for idx, vals := range data {
+		prediction := rf.Predict(vals)
+		log.Printf("Wanted: %s got %s", labels[idx], prediction)
 	}
-	rf.Fit(datas, labels)
-	log.Printf("%s", rf.Predict([]float64{3, 3, 3}))
 }
