@@ -3,7 +3,8 @@ package randomforest
 type SplitEvaluator func([]string, []string, []string) float64
 
 func Gini(left, right, all []string) float64 {
-	score, proportion := 0.0, 0.0
+	var score, proportion float64
+
 	for _, label := range all {
 		leftcnt, rightcnt := 0, 0
 		for _, left_label := range left {
