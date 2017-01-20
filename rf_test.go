@@ -2,7 +2,7 @@ package randomforest
 
 import "log"
 
-func ExampleNew() {
+func Example() {
 
 	data := [][]float64{
 		{1, 1, 1},
@@ -17,6 +17,6 @@ func ExampleNew() {
 
 	for idx, vals := range data {
 		prediction := rf.Predict(vals)
-		log.Printf("Wanted: %s got %s", labels[idx], prediction)
+		log.Printf("Wanted: %s Got: %s", labels[idx], prediction)
 	}
 }
