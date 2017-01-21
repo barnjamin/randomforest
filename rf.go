@@ -1,8 +1,10 @@
 package randomforest
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"math/rand"
 	"sync"
@@ -116,4 +118,15 @@ func (r *RandomForest) Sample() ([][]float64, []string) {
 	}
 
 	return sampleData, sampleLabels
+}
+
+func (r *RandomForest) Dump(w io.Writer) error {
+	enc := json.NewEncoder(w)
+	return enc.Encode(r)
+}
+func Load(r io.Reader) (*RandomForest, error) {
+	dec := json.NewDecoder(r)
+	rf := New(100)
+	err := dec.Decode(rf)
+	return rf, err
 }

@@ -1,4 +1,4 @@
 # randomforest
 
-godoc.org/github.com/barnjamin/randomforest
+http://godoc.org/github.com/barnjamin/randomforest
 
