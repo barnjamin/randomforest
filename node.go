@@ -37,10 +37,11 @@ func NewNode(tree *Tree, indicies []int, level int) *Node {
 	)
 
 	featureSlice := randomSlice(len(tree.Data[0]), tree.Forest.FeatureCount)
-	for _, idx := range featureSlice {
-		for _, row := range tree.Data {
+	for _, featureIdx := range featureSlice {
+		for _, dataIdx := range indicies {
+			row := tree.Data[dataIdx]
 
-			left, right := split(idx, row[idx], indicies, tree.Data, tree.Labels)
+			left, right := split(featureIdx, row[featureIdx], indicies, tree.Data, tree.Labels)
 
 			score := tree.Forest.Evaluator(tree, left, right)
 
@@ -48,8 +49,8 @@ func NewNode(tree *Tree, indicies []int, level int) *Node {
 				maxScore = score
 				best_left, best_right = left, right
 
-				node.FeatureIndex = idx
-				node.Value = row[idx]
+				node.FeatureIndex = featureIdx
+				node.Value = row[featureIdx]
 			}
 		}
 	}
@@ -71,12 +72,10 @@ func (n *Node) Traverse(data []float64) int {
 		if n.Left != nil {
 			return n.Left.Traverse(data)
 		}
-		return n.Label
-	} else if n.Right != nil {
+	} else {
 		if n.Right != nil {
 			return n.Right.Traverse(data)
 		}
-		return n.Label
 	}
 
 	return n.Label
@@ -105,9 +104,9 @@ func split(index int, splitVal float64, indicies []int, data [][]float64, labels
 	left, right := []int{}, []int{}
 	for _, idx := range indicies {
 		if data[idx][index] < splitVal {
-			left = append(left, labels[idx])
+			left = append(left, idx)
 		} else {
-			right = append(right, labels[idx])
+			right = append(right, idx)
 		}
 	}
 	return left, right

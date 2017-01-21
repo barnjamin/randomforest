@@ -78,20 +78,28 @@ func (r *RandomForest) Fit(data [][]float64, labels []string) error {
 }
 
 func (r *RandomForest) Predict(data []float64) string {
-	votes := map[string]int{}
-	for _, tree := range r.Trees {
-		votes[tree.Predict(data)] += 1
-	}
-
 	var prediction string
-	var maxCount int
-	for vote, cnt := range votes {
-		if cnt > maxCount {
-			maxCount = cnt
+	var max float64
+	for vote, prob := range r.PredictProbability(data) {
+		if prob > max {
+			max = prob
 			prediction = vote
 		}
 	}
 	return prediction
+}
+
+func (r *RandomForest) PredictProbability(data []float64) map[string]float64 {
+	votes := map[string]float64{}
+	for _, tree := range r.Trees {
+		votes[tree.Predict(data)] += 1
+	}
+
+	for prediction, v := range votes {
+		votes[prediction] = (v / float64(len(r.Trees))) * 100
+	}
+
+	return votes
 }
 
 func (r *RandomForest) Sample() ([][]float64, []string) {
