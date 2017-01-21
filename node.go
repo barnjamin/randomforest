@@ -11,7 +11,7 @@ type Node struct {
 	Left  *Node
 	Right *Node
 
-	Label string
+	Label int
 }
 
 func NewNode(tree *Tree, indicies []int, level int) *Node {
@@ -29,20 +29,13 @@ func NewNode(tree *Tree, indicies []int, level int) *Node {
 		best_left, best_right []int
 	)
 
-	for _, idx := range randomSlice(len(tree.Data[0]), tree.Forest.FeatureCount) {
+	featureSlice := randomSlice(len(tree.Data[0]), tree.Forest.FeatureCount)
+	for _, idx := range featureSlice {
 		for _, row := range tree.Data {
 
-			left, right := split(idx, row[idx], tree.Data)
+			left, right := split(idx, row[idx], tree.Data, tree.Labels)
 
-			leftStrings, rightStrings := []string{}, []string{}
-			for _, i := range left {
-				leftStrings = append(leftStrings, tree.Labels[i])
-			}
-			for _, i := range right {
-				rightStrings = append(rightStrings, tree.Labels[i])
-			}
-
-			score := tree.Forest.Evaluator(leftStrings, rightStrings, tree.Labels)
+			score := tree.Forest.Evaluator(tree, left, right)
 
 			if score > maxScore {
 				maxScore = score
@@ -66,7 +59,7 @@ func NewNode(tree *Tree, indicies []int, level int) *Node {
 
 }
 
-func (n *Node) Traverse(data []float64) string {
+func (n *Node) Traverse(data []float64) int {
 	if data[n.FeatureIndex] < n.Value {
 		if n.Left != nil {
 			return n.Left.Traverse(data)
@@ -82,15 +75,15 @@ func (n *Node) Traverse(data []float64) string {
 	return n.Label
 }
 
-func getMaxLabel(tree *Tree, indicies []int) string {
+func getMaxLabel(tree *Tree, indicies []int) int {
 
-	labels := map[string]int{}
+	labels := map[int]int{}
 	for _, idx := range indicies {
 		labels[tree.Labels[idx]] += 1
 	}
 
 	var maxCnt int
-	var maxLabel string
+	var maxLabel int
 	for label, cnt := range labels {
 		if cnt > maxCnt {
 			maxCnt = cnt
@@ -101,13 +94,13 @@ func getMaxLabel(tree *Tree, indicies []int) string {
 	return maxLabel
 }
 
-func split(index int, splitVal float64, data [][]float64) ([]int, []int) {
+func split(index int, splitVal float64, data [][]float64, labels []int) ([]int, []int) {
 	left, right := []int{}, []int{}
 	for idx, val := range data {
 		if val[index] < splitVal {
-			left = append(left, idx)
+			left = append(left, labels[idx])
 		} else {
-			right = append(right, idx)
+			right = append(right, labels[idx])
 		}
 	}
 	return left, right
@@ -123,6 +116,5 @@ func randomSlice(maxVal, size int) []int {
 			indicies = append(indicies, idx)
 		}
 	}
-
 	return indicies
 }

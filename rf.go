@@ -3,8 +3,10 @@ package randomforest
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -52,10 +54,27 @@ func (r *RandomForest) Fit(data [][]float64, labels []string) error {
 		r.FeatureCount = int(math.Sqrt(float64(len(data[0]))))
 	}
 
+	tChan := make(chan *Tree, r.TreeCount)
+
+	wg := &sync.WaitGroup{}
 	for x := 0; x < r.TreeCount; x++ {
-		d, l := r.Sample()
-		tree := NewTree(r, d, l)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			d, l := r.Sample()
+			tChan <- NewTree(r, d, l)
+			log.Printf("Finished a tree")
+		}()
+	}
+
+	wg.Wait()
+
+	for tree := range tChan {
 		r.Trees = append(r.Trees, tree)
+		if len(r.Trees) == r.TreeCount {
+			close(tChan)
+		}
 	}
 
 	return nil
@@ -83,6 +102,7 @@ func (r *RandomForest) Sample() ([][]float64, []string) {
 	sampleLabels := []string{}
 
 	sampleCnt := int(float64(len(r.Data)) * r.SampleSize)
+
 	for x := 0; x < sampleCnt; x++ {
 		idx := rand.Intn(len(r.Data))
 
