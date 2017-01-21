@@ -7,6 +7,8 @@ type Tree struct {
 	Labels       []int
 	UniqueCounts []float64
 
+	MaxDepth int
+
 	labelToIdx map[string]int
 	idxToLabel map[int]string
 }

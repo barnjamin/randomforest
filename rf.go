@@ -3,7 +3,6 @@ package randomforest
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
 	"sync"
@@ -61,10 +60,8 @@ func (r *RandomForest) Fit(data [][]float64, labels []string) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-
 			d, l := r.Sample()
 			tChan <- NewTree(r, d, l)
-			log.Printf("Finished a tree")
 		}()
 	}
 

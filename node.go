@@ -8,6 +8,8 @@ type Node struct {
 	FeatureIndex int
 	Value        float64
 
+	IdxCnt int
+
 	Left  *Node
 	Right *Node
 
@@ -16,8 +18,13 @@ type Node struct {
 
 func NewNode(tree *Tree, indicies []int, level int) *Node {
 	node := &Node{
-		Tree:  tree,
-		Label: getMaxLabel(tree, indicies),
+		Tree:   tree,
+		Label:  getMaxLabel(tree, indicies),
+		IdxCnt: len(indicies),
+	}
+
+	if tree.MaxDepth < level {
+		tree.MaxDepth = level
 	}
 
 	if level >= tree.Forest.MaxDepth || len(indicies) <= tree.Forest.MinSize {
@@ -33,7 +40,7 @@ func NewNode(tree *Tree, indicies []int, level int) *Node {
 	for _, idx := range featureSlice {
 		for _, row := range tree.Data {
 
-			left, right := split(idx, row[idx], tree.Data, tree.Labels)
+			left, right := split(idx, row[idx], indicies, tree.Data, tree.Labels)
 
 			score := tree.Forest.Evaluator(tree, left, right)
 
@@ -94,10 +101,10 @@ func getMaxLabel(tree *Tree, indicies []int) int {
 	return maxLabel
 }
 
-func split(index int, splitVal float64, data [][]float64, labels []int) ([]int, []int) {
+func split(index int, splitVal float64, indicies []int, data [][]float64, labels []int) ([]int, []int) {
 	left, right := []int{}, []int{}
-	for idx, val := range data {
-		if val[index] < splitVal {
+	for _, idx := range indicies {
+		if data[idx][index] < splitVal {
 			left = append(left, labels[idx])
 		} else {
 			right = append(right, labels[idx])
