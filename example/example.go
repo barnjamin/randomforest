@@ -4,8 +4,10 @@ import (
 	"encoding/csv"
 	"log"
 	"net/http"
-	"randomforest"
 	"strconv"
+
+	"github.com/barnjamin/bayes"
+	"github.com/barnjamin/randomforest"
 )
 
 var iris_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
@@ -13,24 +15,26 @@ var iris_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/i
 func main() {
 
 	data, labels := parseIris()
+	trainData, trainLabels, testData, testLabels := bayes.Split(data, labels, 0.3)
 
+	log.Printf("%d %d %d %d", len(trainData), len(trainLabels), len(testData), len(testLabels))
 	rf := randomforest.New(100)
 
 	log.Println("Fitting...")
-	rf.Fit(data, labels)
+	rf.Fit(trainData, trainLabels)
 	log.Println("Done!")
 
 	log.Println("Determining accuracy...")
 	correct := 0.0
-	for idx, vals := range data {
+	for idx, vals := range testData {
 		predicted := rf.Predict(vals)
-		if predicted == labels[idx] {
+		if predicted == testLabels[idx] {
 			correct++
 		}
 	}
 
 	// Cheating because we're using samples we trained on
-	log.Printf("(Cheating) Accuracy of: %.2f", (correct/float64(len(data)))*100)
+	log.Printf("Accuracy of: %.2f", (correct/float64(len(testData)))*100)
 }
 
 func parseIris() ([][]float64, []string) {
