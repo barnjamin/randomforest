@@ -13,11 +13,10 @@ import (
 var iris_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 
 func main() {
-
+	log.Println("Getting Iris data")
 	data, labels := parseIris()
 	trainData, trainLabels, testData, testLabels := bayes.Split(data, labels, 0.3)
 
-	log.Printf("%d %d %d %d", len(trainData), len(trainLabels), len(testData), len(testLabels))
 	rf := randomforest.New(100)
 
 	log.Println("Fitting...")
@@ -33,7 +32,6 @@ func main() {
 		}
 	}
 
-	// Cheating because we're using samples we trained on
 	log.Printf("Accuracy of: %.2f", (correct/float64(len(testData)))*100)
 }
 
