@@ -18,7 +18,7 @@ func Example() {
 	// Return a score of how good this split is
 	// Default is Gini
 	//
-	// rf.SplitEvaluator = func(left, right, all []string) float64 {
+	// rf.SplitEvaluator = func(t *Tree, left, right []int) float64 {
 	// 	return rand.Float64()
 	// }
 
